@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Subcategorias_Gastos;
-use Illuminate\Http\Request;
 
-class SubCategoriaGastosController extends Controller
+use Illuminate\Http\Request;
+use App\Models\Gestion_Ingresos;
+
+class GestionIngresosController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,7 +14,7 @@ class SubCategoriaGastosController extends Controller
      */
     public function index()
     {
-        return $SubCategorias = Subcategorias_Gastos::all();        
+        return $gestiones = Gestion_Ingresos::all();
     }
 
     /**
@@ -23,9 +24,13 @@ class SubCategoriaGastosController extends Controller
      */
     public function create(Request $request)
     {
-        $SubCategorias = new Subcategorias_Gastos;
-        $SubCategorias->Nombre_Subcategorias = $request->get('Nombre_Subcategorias');
-        $SubCategorias->Tipo_Gasto_Mensual   = $request->get('Tipo_Gasto_Mensual');
+		$Fecha         = date("Y-m-d  h:i:s");
+        
+        $SubCategorias = new Gestion_Ingresos;
+        $SubCategorias->Nombre_Tipo_Entradas = strval($request->input('Nombre_Tipo_Entradas'));
+        $SubCategorias->Estado               = strval($request->input('Estado'));
+        $SubCategorias->Tipo_Ingreso         = strval($request->input('Tipo_Ingreso'));
+        $SubCategorias->created_at           = $Fecha;
         $SubCategorias->save();
 
         return;
@@ -37,8 +42,9 @@ class SubCategoriaGastosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store()
-    { 
+    public function store(Request $request)
+    {
+        //
     }
 
     /**
@@ -86,4 +92,3 @@ class SubCategoriaGastosController extends Controller
         //
     }
 }
-

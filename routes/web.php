@@ -21,16 +21,30 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::resource('/CategoriasGastosData', 'App\Http\Controllers\CategoriasGastosController');
-Route::resource('/ApuntesGastosData', 'App\Http\Controllers\ApuntesGastosController');
+Route::resource('/CategoriasGastosData', 'App\Http\Controllers\CategoriasGastosController'); 
 
-//Route::resource('/SubCategoriasGastosData', 'App\Http\Controllers\SubCategoriaGastosController');
 Route::prefix('/SubCategoriasGastosData')->group( function (){
     
     $controlador = 'App\Http\Controllers\SubCategoriaGastosController';
     Route::prefix('Admin')->group( function() use($controlador) {
         Route::get('/',$controlador.'@index');
-        Route::post('/NewSub',$controlador.'@store');
+        Route::get('/NewSub',$controlador.'@create');
+    });
+});
+Route::prefix('/ApuntesGastosData')->group( function (){
+    
+    $controlador = 'App\Http\Controllers\ApuntesGastosController'; 
+    Route::prefix('/')->group( function() use($controlador) {
+        Route::get('/',$controlador.'@index');
+        Route::get('/Create',$controlador.'@create');
+    });
+});
+Route::prefix('/ApuntesGestionIngresoData')->group( function (){
+    
+    $controlador = 'App\Http\Controllers\GestionIngresosController'; 
+    Route::prefix('/')->group( function() use($controlador) {
+        Route::get('/',$controlador.'@index');
+        Route::get('/Create',$controlador.'@create');
     });
 });
 
@@ -43,3 +57,6 @@ Route::get('/SubCategoriasGastos', function(){
 Route::get('/ApuntesGastos', function(){
     return view('layouts/app');
 }); 
+Route::get('/ApuntesGestionIngreso', function(){
+    return view('layouts/app');
+});

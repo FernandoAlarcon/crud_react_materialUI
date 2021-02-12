@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Apuntes_Gastos;
 use Illuminate\Http\Request;
+date_default_timezone_set('America/Bogota');
 
 class ApuntesGastosController extends Controller
 {
@@ -22,9 +23,19 @@ class ApuntesGastosController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
+    public function create(Request $request)
+    {   
+		$Fecha         = date("Y-m-d  h:i:s");
+        $SubCategorias = new Apuntes_Gastos;
+        $SubCategorias->Categoría_Gasto    = $request->input('Categoría_Gasto');
+        $SubCategorias->Subcategoría_Gasto = $request->input('Subcategoría_Gasto');
+        $SubCategorias->Importe            = $request->input('Importe');
+        $SubCategorias->Concepto           = $request->input('Concepto'); 
+        $SubCategorias->save();
+
+        return [ 'message' => "Guardo exitosamente",
+      			 'success' => 'true' ];
+
     }
 
     /**
@@ -35,14 +46,7 @@ class ApuntesGastosController extends Controller
      */
     public function store(Request $request)
     {
-        $SubCategorias = new Apuntes_Gastos;
-        $SubCategorias->Categoría_Gasto    = $request->input('Categoría_Gasto');
-        $SubCategorias->Subcategoría_Gasto = $request->input('Subcategoría_Gasto');
-        $SubCategorias->Importe            = $request->input('Importe');
-        $SubCategorias->Concepto           = $request->input('Concepto');
-        $SubCategorias->save();
-
-        return;
+       
     }
 
     /**

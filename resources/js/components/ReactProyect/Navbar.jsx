@@ -168,6 +168,13 @@ export default function PrimarySearchAppBar() {
                         </MenuItem>
                 </a>
                     </NavLink>
+                    <NavLink to="/ApuntesGestionIngreso" color="primary">
+                <a href="/ApuntesGestionIngreso" >
+                        <MenuItem>
+                            Gestion de Ingresos
+                        </MenuItem>
+                </a>
+                    </NavLink>
                 {/* <a href="/logaut"  >                                         
                         <NavLink to="/logaut" color="primary" type="submit" >
                             <MenuItem>

@@ -20,7 +20,10 @@ class Apuntes_Gastos extends Model
     public static function GetAll(){
         $apuntes = Apuntes_Gastos::select('*')->from("Apuntes__Gastos as AG")
                    ->join('Categorias_Gastos     AS CG', 'CG.id','=','AG.Categoría_Gasto')
-                   ->join('Subcategorias__Gastos AS SG', 'SG.id','=','AG.Subcategoría_Gasto')
+                   ->join('Subcategorias__Gastos AS SG', 'SG.id','=','AG.Subcategoría_Gasto') 
+                   ->addSelect([
+                        'AG.id AS IdApuntes'
+                   ])
                    ->get();
         return $apuntes;
     }

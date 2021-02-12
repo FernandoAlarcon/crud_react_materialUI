@@ -32,7 +32,7 @@ import Alert from '@material-ui/lab/Alert';
 
 
 
-const baseUrl = "/ApuntesGastosData";
+const baseUrl = "/ApuntesGestionIngresoData";
 
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
@@ -67,10 +67,9 @@ function ModalApuntes(props) {
 
     const classes = useStyles();
     const [open, setOpen]         = useState(false);
-    const [Cat, setCat]           = useState('');
-    const [SubCat, setSubCat]     = useState('');
-    const [importe, setImporte]   = useState('');
-    const [concepto, setConcepto] = useState('');
+    const [NomGest, setNomGest]    = useState('');
+    const [SubGestTipo, setSubGest]     = useState('');
+    const [SubGestEstado, setEstado]   = useState(''); 
 
 
     const theme = useTheme();
@@ -92,43 +91,32 @@ function ModalApuntes(props) {
     const handleClose = () => {
       setOpen(false);
     };
-    const ConceptoChangue = (event) =>{
-        setConcepto(event.target.value);
+    const ChangueNombreGestion = (event) =>{
+        setNomGest(event.target.value);
     }
-    const ImporteChangue = (event) =>{
-        setImporte(event.target.value);
+    const ChangueTipoIngreso = (event) =>{
+        setSubGest(event.target.value);
     }
-    const SubCategoria = (event) =>{
-        setSubCat(event.target.value);
+    const SubEstado = (event) =>{
+        setEstado(event.target.value);
     }
-    const Categoria = (event) => {
-        setCat(event.target.value);
-    };
 
-    const NuevoApunte = evt => {
-        evt.preventDefault();  
-        const formData = new FormData();
-        formData.append('Categoría_Gasto',Cat)
-        formData.append('Subcategoría_Gasto',SubCat)
-        formData.append('Importe',importe)
-        formData.append('Concepto',concepto.toString()) 
+    const NuevaGestion = evt => {
+        evt.preventDefault();   
 
-        let URLApunte = baseUrl + '/Create';
-        console.log('Rutas '+URLApunte);
-        console.log('Informacion '+formData);
+        let URLApunte = baseUrl + '/Create'; 
 
         axios.get(URLApunte,{params:{
-            Categoría_Gasto:Cat,
-            Subcategoría_Gasto:SubCat,
-            Importe:importe,
-            Concepto:concepto
+            Nombre_Tipo_Entradas:NomGest.toString(),
+            Estado:SubGestEstado.toString(),
+            Tipo_Ingreso:SubGestTipo.toString()
         }})
         .then((response) => {
             //console.log("Success:", JSON.stringify(response)) 
-            setConcepto('');
-            setImporte('');
-            setSubCat('');
-            setCat('');
+            setNomGest('');
+            setSubGest(''); 
+            setEstado(''); 
+
             setOpen(false);
             UpdateSub
         })
@@ -150,63 +138,48 @@ function ModalApuntes(props) {
           aria-labelledby="responsive-dialog-title"
         >
             <DialogTitle id="responsive-dialog-title">
-               Nuevo Apunte
+               Nueva Gestion 
             </DialogTitle>
           <DialogContent>
-          <form onSubmit={NuevoApunte}> 
+          <form onSubmit={NuevaGestion}> 
             <DialogContentText>
-             Aqui puedes agregar tus nuevos Apuntes
+             Aqui puedes agregar tus nuevas gestiones
             </DialogContentText>
             <FormControl className={classes.formControl}>
-                <InputLabel id="demo-simple-select-label">Categoria</InputLabel>
+                    <TextField required
+                               name="Nombre_Tipo_Entradas"
+                               defaultValue={NomGest}
+                               onKeyPress={ChangueNombreGestion}
+                               id="standard-required" 
+                               label="Nombre Gestion"  />
+            </FormControl>
+            <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">Tipo Ingreso</InputLabel>
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={Cat}
-                    onChange={Categoria}
-                    >
-                    {
-                        props.Categorias.map((row) => (
-                            <MenuItem value={row.id}>{row.Nombre_Categorias}</MenuItem>
-                        ))
-                    }
+                    value={SubGestTipo}
+                    onChange={ChangueTipoIngreso}
+                    >   
+                        <MenuItem value='Unico'>   Unico    </MenuItem>
+                        <MenuItem value='Multiple Mensual'>Multiple Mensual </MenuItem> 
+
+                    
                 </Select>
             </FormControl>
             <FormControl className={classes.formControl}>
-                <InputLabel id="demo-simple-select-label">SubCategoria</InputLabel>
+                <InputLabel id="demo-simple-select-label">Estado Ingreso</InputLabel>
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={SubCat}
-                    onChange={SubCategoria}
-                    >
-                    {
-                        props.Subcategorias.map((row) => (
-                            <MenuItem value={row.id}>{row.Nombre_Subcategorias}</MenuItem>
-                        ))
-                    }
+                    value={SubGestEstado}
+                    onChange={SubEstado}
+                    >   
+                        <MenuItem value='Positivo'>Positivo </MenuItem>
+                        <MenuItem value='Negativo'>Negativo </MenuItem>
+
+                    
                 </Select>
-            </FormControl>
-            <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="outlined-adornment-amount">Importe</InputLabel>
-                <OutlinedInput
-                    id="outlined-adornment-amount"
-                    value={importe}
-                    onChange={ImporteChangue}
-                    startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                    labelWidth={60}
-                />
-            </FormControl>
-            <FormControl className={classes.formControl} >
-                <TextField
-                    id="outlined-multiline-static"
-                    label="Concepto"
-                    multiline
-                    defaultValue={concepto}
-                    onKeyPress={ConceptoChangue}
-                    rows={4} 
-                    variant="outlined"
-                    />
             </FormControl>
             <Button
                     type="submit"
@@ -232,14 +205,12 @@ function ModalApuntes(props) {
     );
 }
 
-export default  class ApuntesGastos extends Component {
+export default  class GestionIngresos extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-        Fecha: new Date(),
-        Categorias: [],
-        SubCategorias: [],
+        Fecha: new Date(), 
         Apuntes: []
     };
 
@@ -252,34 +223,11 @@ export default  class ApuntesGastos extends Component {
     
     } /// FINAL CONSTRUCTOR
 
-    componentDidMount(){
-        this.CategoriasGastos();
-        this.SubCategoriasGastos();
+    componentDidMount(){ 
         this.ApuntesGastos(); 
     }
 
-    CategoriasGastos(){
-
-        let UrlCat = 'CategoriasGastosData';
-        axios.get(UrlCat).then(response=>{
-            this.setState({
-                Categorias:response.data
-            })
-        }).catch(error=>{
-            alert("Error "+error)
-        })
-    }
-    SubCategoriasGastos(){
-
-        let UrlSubCat = 'SubCategoriasGastosData/Admin';
-        axios.get(UrlSubCat).then(response=>{
-            this.setState({
-                SubCategorias:response.data,
-            })
-        }).catch(error=>{
-            alert("Error "+error)
-        })
-    }
+   
     ApuntesGastos(){
 
         axios.get(baseUrl).then(response=>{
@@ -305,7 +253,7 @@ export default  class ApuntesGastos extends Component {
                                 <div className="card">
                                    <center><br/>
                                         <h3>
-                                            Apuntes Gastos
+                                            Gestion de Ingresos
                                         </h3>
                                    </center>
                                 
@@ -319,21 +267,19 @@ export default  class ApuntesGastos extends Component {
                                         <TableHead>
                                         <TableRow>
                                             <TableCell>Categorias</TableCell>
-                                            <TableCell align="right">SubCategorias</TableCell>
-                                            <TableCell align="right">Importe</TableCell>
-                                            <TableCell align="right">Concepto</TableCell> 
+                                            <TableCell align="right">Gestion</TableCell>
+                                            <TableCell align="right">Estado</TableCell> 
                                         </TableRow>
                                         </TableHead>
                                         <TableBody>
                                         
                                         { this.state.Apuntes.map((row) => (
-                                            <TableRow key={row.IdApuntes}>
+                                            <TableRow key={row.id}>
                                             <TableCell component="th" scope="row">
-                                                {row.Nombre_Categorias}
+                                                {row.Nombre_Tipo_Entradas}
                                             </TableCell>
-                                            <TableCell align="right">{row.Nombre_Subcategorias}</TableCell>
-                                            <TableCell align="right">{row.Importe}</TableCell>
-                                            <TableCell align="right">{row.Concepto}</TableCell> 
+                                            <TableCell align="right">{row.Estado}</TableCell>
+                                            <TableCell align="right">{row.Tipo_Ingreso}</TableCell> 
                                             </TableRow>
                                         ))}
                                         </TableBody>
