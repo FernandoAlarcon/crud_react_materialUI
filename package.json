@@ -45,5 +45,10 @@
         "requirejs": "^2.3.6",
         "socket.io": "^2.4.1",
         "socket.io-client": "^3.1.0"
+    },
+    "dependencies": {
+        "react-if": "^4.0.1",
+        "sweetalert": "^2.1.2",
+        "toastr": "^2.1.4"
     }
 }

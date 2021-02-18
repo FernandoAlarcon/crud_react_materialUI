@@ -11,9 +11,15 @@ class CategoriasGastosController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        return $categorias = Categorias_Gastos::all();
+    public function index(Request $request)
+    {   
+        $Data = $request->get('DataSend');
+        if($Data != ''){
+            $categorias = Categorias_Gastos::GetFindData($Data);
+        }else{
+            $categorias = Categorias_Gastos::orderBy('id', 'DESC')->get();
+        }
+        return $categorias;
         
     }
 
@@ -22,9 +28,16 @@ class CategoriasGastosController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request) 
     {
-        //
+        $Fecha      = date("Y-m-d  h:i:s");
+        $categorias = new Categorias_Gastos;
+        $categorias->Nombre_Categorias  = $request->input('Nombre_Categorias');
+        $categorias->Tipo_Categoria     = $request->input('Tipo_Categoria');
+        $categorias->Estado_Categoria   = $request->input('Estado_Categoria');
+        $categorias->save();
+
+        return;
     }
 
     /**
@@ -69,7 +82,11 @@ class CategoriasGastosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $categorias = Categorias_Gastos::find($id);
+        $categorias->Nombre_Categorias  = $request->input('Nombre_Categorias');
+        $categorias->Tipo_Categoria     = $request->input('Tipo_Categoria');
+        $categorias->Estado_Categoria   = $request->input('Estado_Categoria');
+        $categorias->save();
     }
 
     /**
@@ -80,6 +97,9 @@ class CategoriasGastosController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $categorias = Categorias_Gastos::find($id);
+        $categorias->delete();
+
+        return;
     }
 }

@@ -14,4 +14,15 @@ class Subcategorias_Gastos extends Model
         'Nombre_Subcategorias',
         'Tipo_Gasto_Mensual'
     ];
+
+    public static function GetFindData($Data){
+        $Subcategorias = Subcategorias_Gastos::select('*')
+                   ->where('Nombre_Subcategorias','LIKE','%'.$Data.'%')
+                   ->orWhere('Tipo_Gasto_Mensual','LIKE','%'.$Data.'%') 
+                   ->orderBy('id', 'DESC')
+                   ->get();
+
+        return $Subcategorias;
+    }
+
 } 

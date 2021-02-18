@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -23,20 +23,26 @@ import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@material-ui/core/InputLabel'; 
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import SendIcon from '@material-ui/icons/Send';
+import Alert from '@material-ui/lab/Alert';
+
+///// NOTIFICACIONES /////
+import toastr from 'toastr'; 
+import swal from 'sweetalert';
+//////////////////
+import TablePagination from '@material-ui/core/TablePagination';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 import MenuItem from '@material-ui/core/MenuItem';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { If, Then, Else, When, Unless, Switch, Case, Default } from 'react-if';
+
+
 const baseUrl = "CategoriasGastosData";
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-];
-
+ 
 function ModalCategorias() {
 
     const useStyles = makeStyles((theme) => ({
@@ -53,13 +59,19 @@ function ModalCategorias() {
             margin: theme.spacing(1),
             minWidth: 220,
         },
+        button_submit: {
+            margin: theme.spacing(1)
+        },
     }));
 
-    const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
-    const [Cat, setCat] = React.useState(false);
-    const theme = useTheme();
+    const classes          = useStyles();
+    const [open, setOpen]  = React.useState(false);
+    const [Cat, setCat]    = React.useState('');
+    const [Tipo, setTipo]  = React.useState('');
+    const theme      = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    const Gestion    = new CategoriasGastos();
+
   
     const handleClickOpen = () => {
       setOpen(true);
@@ -70,44 +82,85 @@ function ModalCategorias() {
     };
 
     const TipoCategoria = (event) => {
-        //this.setState({TipoCat : event.target.value});
+        setTipo(event.target.value);
+    };
+
+    const CategoriaChangue = (event) => {
         setCat(event.target.value);
     };
+
+    const NuevaCategoria = async evt => {
+      evt.preventDefault();   
+
+      let URLApunte = baseUrl + '/Create'; 
+
+      await axios.get(URLApunte,{params:{
+          Nombre_Categorias : Cat,
+          Tipo_Categoria    : Tipo          
+      }})
+      .then((response) => {
+          //Gestion.ApuntesGastos();
+          Gestion.SearchRealTime(); 
+          setCat('');
+          setTipo('');  
+          setOpen(false); 
+          swal("Agregaste nueva informacion a la base de datos", {
+              icon: "success",
+          });
+      })
+      .catch((error) => {
+          console.log(error);
+      });
+  }
   
     return (
         <div> 
-        <Fab onClick={handleClickOpen} color="primary" aria-label="add">
-            <AddIcon />
-        </Fab>
+          <Fab onClick={handleClickOpen} color="primary" aria-label="add">
+              <AddIcon />
+          </Fab>
 
-        <Dialog
-          fullScreen={fullScreen}
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="responsive-dialog-title"
-        >
+         <Dialog
+            fullScreen={fullScreen}
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="responsive-dialog-title"
+          >
             <DialogTitle id="responsive-dialog-title">
                 Nuevas Categorias
             </DialogTitle>
           <DialogContent>
-            <DialogContentText>
-             Aqui puedes agregar tus nuevas Categorias
-            </DialogContentText>
-            <FormControl className={classes.margin}> 
-                <TextField required id="standard-required" label="Nombre Categoria" defaultValue="" />
-            </FormControl>
-            <FormControl className={classes.formControl}>
+            <form onSubmit={NuevaCategoria}>
+              <DialogContentText>
+              Aqui puedes agregar tus nuevas Categorias
+              </DialogContentText>
+              <FormControl className={classes.margin}> 
+                  <TextField  required 
+                              id="standard-required"
+                              label="Nombre Categoria"
+                              defaultValue={Cat}
+                              onChange={CategoriaChangue} />
+              </FormControl>
+              <FormControl className={classes.formControl}>
                 <InputLabel id="demo-simple-select-label">Tipo de Categoria</InputLabel>
                 <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={Cat}
-                onChange={TipoCategoria}
-                >
-                <MenuItem value={'Gasto vital'}>Gasto vital</MenuItem>
-                <MenuItem value={'Gasto no vital'}>Gasto no vital</MenuItem> 
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={Tipo}
+                  onChange={TipoCategoria}
+                  >
+                  <MenuItem value={'Gasto vital'}>Gasto vital</MenuItem>
+                  <MenuItem value={'Gasto no vital'}>Gasto no vital</MenuItem> 
                 </Select>
             </FormControl>
+              <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      className={classes.button_submit}
+                  >
+                      Enviar Info <SendIcon className={classes.rightIcon} />
+              </Button>
+            </form>
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={handleClose} color="primary">
@@ -118,38 +171,178 @@ function ModalCategorias() {
             </Button> */}
           </DialogActions>
         </Dialog>
-      </div>
-   
+        </div>
     );
-  }
+}
+
+function EditModalCategorias(props) {
+
+  const useStyles = makeStyles((theme) => ({
+      root: {
+        '& > *': {
+          margin: theme.spacing(1),
+          width: '35ch',
+        },
+      },
+      margin_fab: {
+          margin: theme.spacing(1),
+      },
+      formControl: {
+          margin: theme.spacing(1),
+          minWidth: 220,
+      },
+      button_submit: {
+          margin: theme.spacing(1)
+      },
+  }));
+
+  const classes = useStyles();
+  const Data    = props.InfoData;
+  const [open, setOpen]     = useState(false);
+  const [Id, setId]         = useState(Data.id); 
+  const [Cat, setCat]       = useState(Data.Nombre_Categorias);
+  const [Tipo, setTipo]     = useState(Data.Tipo_Categoria);
+  const theme      = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const Gestion    = new CategoriasGastos();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const ChangueCategoria = (event) => { 
+      setCat(event.target.value);
+  };
+  const TipoCategoria = (event) => { 
+      setTipo(event.target.value);
+  };
+  const EditarTipoSubCategoria = async evt => {
+
+        evt.preventDefault();   
+        let URLApunte = baseUrl + '/Update/'+Id; 
+        let DataUpdate = {
+          Nombre_Categorias : Cat,
+          Tipo_Categoria    : Tipo
+        };
+
+        await axios.put(URLApunte,DataUpdate)
+        .then((response) => { 
+
+            Gestion.componentDidMount(); 
+            setOpen(false); 
+            swal("Editaste un archivo de la base de datos", {
+                icon: "success",
+            });
+
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+
+    
+  };
+
+  return (
+      <div> 
+        <Fab
+            variant="extended"
+            size="medium"
+            color="primary"
+            aria-label="Editar"
+            className={classes.margin_fab}
+            onClick={handleClickOpen}
+            >
+                <EditIcon/> Editar
+        </Fab>
+        <Dialog
+          fullScreen={fullScreen}
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="responsive-dialog-title"
+        >
+          <DialogTitle id="responsive-dialog-title">
+              Editar Categorias
+          </DialogTitle>
+          <DialogContent>
+          <form onSubmit={EditarTipoSubCategoria}>
+            <DialogContentText>
+            Aqui puedes agregar tus nuevas Categorias
+            </DialogContentText>
+            <FormControl className={classes.margin}> 
+                <TextField  required
+                            name="Nombre_Subcategorias"
+                            defaultValue={Cat}
+                            onKeyPress={ChangueCategoria}
+                            id="standard-required" 
+                            label="Nombre Categoria"  />
+            </FormControl>
+            <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">Tipo de Categoria</InputLabel>
+                <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={Tipo}
+                onChange={TipoCategoria}
+                >
+                <MenuItem value={'Gasto vital'}>Gasto vital</MenuItem>
+                <MenuItem value={'Gasto no vital'}>Gasto no vital</MenuItem> 
+                </Select>
+            </FormControl>
+          </form>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={handleClose} color="primary">
+              Cerrar Ventana 
+            </Button> 
+          </DialogActions>
+      </Dialog>
+      </div>
+ 
+  );
+}
 
 export default  class CategoriasGastos extends Component {
-  //const classes = useStyles();
 
-  constructor(props) {
-    super(props);
-    this.state = {
-        Fecha: new Date(),
-        Categorias: [],
-        CategoriasBackup: []
-    };
+    constructor(props) {
+      super(props);
+      this.ReloadData         = this.componentDidMount.bind(this);
+      this.SearchRealTime     = this.SearchRealTime.bind(this);
+      this.CategoriasGastos   = this.CategoriasGastos.bind(this);
+      this.state = {
+          Fecha: new Date(),
+          Categorias: [],
+          CategoriasBackup: [],
+          BusquedadApuntes: '',
+          columns : [
+              { id: 'Nombre_Categorias', label: 'Nombre Categoria', minWidth: 170, align: 'center' },
+              { id: 'Tipo_Categoria',    label: 'Tipo Categoria', minWidth: 100, align: 'center' },
+              { id: 'Estado_Categoria',  label: 'Estado', minWidth: 100, align: 'center' },
+              { id: 'created_at',        label: 'Creado', minWidth: 100, align: 'center' }
+          ],
+          page: 0,
+          rowsPerPage: 10,
+      };
 
-    this.useStyles = makeStyles(theme => ({ 
+      this.useStyles = makeStyles(theme => ({ 
 
-        table: {
-            minWidth: 650,
-        }
-    }));
+          table: {
+              minWidth: 650,
+          }
+      }));
     
     } /// FINAL CONSTRUCTOR
 
     componentDidMount(){
         this.CategoriasGastos();
-    }
+    };
 
-    CategoriasGastos(){
+    async CategoriasGastos(){
 
-        axios.get(baseUrl).then(response=>{
+        await axios.get(baseUrl,{params:{
+          DataSend: this.state.BusquedadApuntes
+        }}).then(response=>{
             this.setState({
                 Categorias:response.data,
                 CategoriasBackup:response.data
@@ -157,17 +350,65 @@ export default  class CategoriasGastos extends Component {
         }).catch(error=>{
             alert("Error "+error)
         })
-    }
+    };
 
+    SearchRealTime(event){
+        let InfoSend = '';
+        if(event){
+            InfoSend = event.target.value;
+        }
+        this.setState({BusquedadApuntes: InfoSend});
+        this.CategoriasGastos();
+    };
+
+    Eliminar(Info){
+
+        swal({
+            title: "Estas seguro ?",
+            text: "Vas a eliminar a " + Info.Nombre_Categorias + " perderas este registro",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                let IdData = Info.id;
+                    axios.delete(baseUrl + '/Delete/' + IdData).then(response=>{
+                    this.CategoriasGastos();
+                    swal("Eliminaste "+ Info.Nombre_Categorias + " de la base de datos", {
+                        icon: "success",
+                    });
+                    toastr.success('Dato Eliminado');
+                }).catch(error=>{
+                    alert("Error "+error)
+                })
+              
+            } else {
+              //swal("Your imaginary file is safe!");
+            }
+          });           
+
+    };
+
+    async handleChangePage(event, newPage){ 
+        let finalRow = (this.state.page) + 1;
+        this.setState({page:finalRow});
+    };
+
+    handleChangeRowsPerPage(event){
+        let rowsPerPage_D = event.target.value;
+            rowsPerPage_D = rowsPerPage_D+1;
+        this.setState({rowsPerPage : rowsPerPage_D});
+        this.setState({page:0});
+    };
 
     render(){
     const classes  = this.useStyles; 
     return (
-                <div>
-                    <div> 
+              <div>
+                  <div> 
                         <Navbar/>
-                    </div>
-                    <div className="container" >
+                  </div>
+                  <div className="container" >
                         <div className="row" >
                             <div className="col-md-12" ><br/>
                                 <div className="card">
@@ -177,45 +418,118 @@ export default  class CategoriasGastos extends Component {
                                         </h3>
                                    </center>
                                 
-                                <div className="card-body" > 
-                                   <TableContainer component={Paper}>
-                                    <Table className={classes.table} aria-label="caption table">
-                                        <caption>
-                                          <ModalCategorias/>
-                                        </caption>
-                                        <TableHead>
-                                        <TableRow>
-                                            <TableCell>Nombre Categorias</TableCell>
-                                            <TableCell align="right">Tipo Categoria</TableCell>
-                                            <TableCell align="right">Estado Categoria</TableCell>
-                                            <TableCell align="right">Fecha de Creacion</TableCell> 
-                                        </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                        
-                                        { this.state.Categorias.map((row) => (
-                                            <TableRow key={row.id}>
-                                            <TableCell component="th" scope="row">
-                                                {row.Nombre_Categorias}
-                                            </TableCell>
-                                            <TableCell align="right">{row.Tipo_Categoria}</TableCell>
-                                            <TableCell align="right">{row.Estado_Categoria}</TableCell>
-                                            <TableCell align="right">{row.created_at}</TableCell> 
-                                            </TableRow>
-                                        ))}
-                                        </TableBody>
-                                    </Table>
-                                    </TableContainer>
-                                </div>
-
-                                </div>       
+                                   <div className="card-body" > 
+                                        <div className="row" >
+                                            <div className={'col-md-6'}  >
+                                                <TextField  id="Search"
+                                                            onChange={this.SearchRealTime} 
+                                                            value={this.state.BusquedadApuntes}
+                                                            className={classes.root_field} 
+                                                            label="Mejora tu Busqueda" variant="outlined" />
+                                            </div>
+                                            <div className="col-md-6" style={{textAlign:"right"}} >
+                                                <ModalCategorias />
+                                            </div>
+                                            <div className="col-md-12" ><br/>
+                                                <Paper className={classes.root}>                                    <TableContainer className={classes.container}>
+                                                    <Table stickyHeader aria-label="sticky table">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                        {this.state.columns.map((column) => (
+                                                            <TableCell
+                                                            key={column.id}
+                                                            align={column.align}
+                                                            style={{ minWidth: column.minWidth }}
+                                                            >
+                                                            {column.label}
+                                                            </TableCell>
+                                                        ))}
+                                                            <TableCell  align={'center'} >
+                                                                Acciones
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    
+                                                    <If condition={!this.state.Categorias.length} >
+                                                        <TableBody>
+                                                                <TableCell></TableCell>
+                                                                <TableCell></TableCell>
+                                                                <TableCell>
+                                                                    <center>
+                                                                        <CircularProgress />
+                                                                    </center>
+                                                                </TableCell>
+                                                                <TableCell></TableCell>
+                                                                <TableCell></TableCell>
+                                                        </TableBody>
+                                                        
+                                                    <Else>
+                                                            <If condition={this.state.Categorias.length == 0} >
+                                                                <p>
+                                                                    No hay datos ...
+                                                                </p>
+                                                              <Else>
+                                                              <TableBody>
+                                                                {                                                                        
+                                                                    this.state.Categorias.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map((row) => {
+                                                                    return (
+                                                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                                                                          {this.state.columns.map((column) => {
+                                                                            const value = row[column.id];
+                                                                            return (
+                                                                                <TableCell key={column.id} align={column.align}>
+                                                                                  {value}
+                                                                                </TableCell>
+                                                                              );
+                                                                          })}
+                                                                            <TableCell align={'center'} > 
+                                                                                <div>        
+                                                                                  <Fab
+                                                                                    variant="extended"
+                                                                                    size="medium"
+                                                                                    color="secondary"
+                                                                                    aria-label="add"
+                                                                                    className={classes.margin_fab}
+                                                                                    onClick={this.Eliminar.bind(this, row)}
+                                                                                  >
+                                                                                    <DeleteIcon /> Borrar 
+                                                                                  </Fab>
+                                                                                    <EditModalCategorias InfoData={row} />
+                                                                                </div>
+                                                                            </TableCell> 
+                                                                            </TableRow>
+                                                                    );                                        
+                                                                                })}
+                                                                            </TableBody>
+                                                                    
+                                                                </Else>
+                                                            </If>
+                                                        </Else>
+                                                    </If>
+                                                    
+                                                    </Table>
+                                                    </TableContainer>
+                                                    <TablePagination
+                                                        rowsPerPageOptions={[10, 25, 100]}
+                                                        component="div"
+                                                        count={this.state.Categorias.length}
+                                                        rowsPerPage={this.state.rowsPerPage}
+                                                        page={this.state.page}
+                                                        onChangePage={this.handleChangePage}
+                                                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                                    />                                    
+                                                </Paper>
+                                            </div>
+                                        </div>
+                                    </div>       
 
                             </div>   
                                                 
                         </div>
                     </div>
-                </div>
-        );
+              </div>                                                                  
+              </div>
+      );
   }
 
  

@@ -16,4 +16,15 @@ class Gestion_Ingresos extends Model
         'Tipo_Ingreso'
     ]; 
 
+    public static function GetFindData($Data){
+        $GestionIngreso = Gestion_Ingresos::select('*')
+                   ->where('Nombre_Tipo_Entradas','LIKE','%'.$Data.'%')
+                   ->orWhere('Estado','LIKE','%'.$Data.'%')
+                   ->orWhere('Tipo_Ingreso','LIKE','%'.$Data.'%')
+                   ->orderBy('id', 'DESC')
+                   ->get();
+
+        return $GestionIngreso;
+    }
+
 }

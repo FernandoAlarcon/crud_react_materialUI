@@ -12,12 +12,17 @@ class ApuntesGastosController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $Apuntes = Apuntes_Gastos::GetAll();
+    public function index(Request $request)
+    {   
+        $Data = $request->get('DataSend');
+        if($Data != ''){
+            $Apuntes = Apuntes_Gastos::GetFindData($Data);
+        }else{
+            $Apuntes = Apuntes_Gastos::GetAll();
+        }
         return $Apuntes;
     }
-
+ 
     /**
      * Show the form for creating a new resource.
      *
@@ -26,71 +31,52 @@ class ApuntesGastosController extends Controller
     public function create(Request $request)
     {   
 		$Fecha         = date("Y-m-d  h:i:s");
-        $SubCategorias = new Apuntes_Gastos;
-        $SubCategorias->Categoría_Gasto    = $request->input('Categoría_Gasto');
-        $SubCategorias->Subcategoría_Gasto = $request->input('Subcategoría_Gasto');
-        $SubCategorias->Importe            = $request->input('Importe');
-        $SubCategorias->Concepto           = $request->input('Concepto'); 
-        $SubCategorias->save();
+        $ApuntesGastos = new Apuntes_Gastos;
+        $ApuntesGastos->Categoría_Gasto    = $request->input('Categoría_Gasto');
+        $ApuntesGastos->Subcategoría_Gasto = $request->input('Subcategoría_Gasto');
+        $ApuntesGastos->Importe            = $request->input('Importe');
+        $ApuntesGastos->Concepto           = $request->input('Concepto'); 
+        $ApuntesGastos->save();
 
         return [ 'message' => "Guardo exitosamente",
       			 'success' => 'true' ];
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
        
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+        $Fecha         = date("Y-m-d  h:i:s");
+
+        $ApuntesGastos = Apuntes_Gastos::find($id);
+        $ApuntesGastos->Categoría_Gasto    = strval($request->input('Categoría_Gasto'));
+        $ApuntesGastos->Subcategoría_Gasto = strval($request->input('Subcategoría_Gasto'));
+        $ApuntesGastos->Importe            = strval($request->input('Importe'));
+        $ApuntesGastos->Concepto           = strval($request->input('Concepto')); 
+        $ApuntesGastos->save();
+
+        return;
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        //
+        $Apunte = Apuntes_Gastos::find($id);
+        $Apunte->delete();
+
+        return;
     }
 }

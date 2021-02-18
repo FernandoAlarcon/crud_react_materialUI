@@ -19,4 +19,15 @@ class Categorias_Gastos extends Model
         'Estado_Categoria'
     ];
 
+    public static function GetFindData($Data){
+        $Categorias = Categorias_Gastos::select('*')
+                        ->where('Nombre_Categorias'  ,'LIKE','%'.$Data.'%')
+                        ->orWhere('Tipo_Categoria'   ,'LIKE','%'.$Data.'%')
+                        ->orWhere('Estado_Categoria' ,'LIKE','%'.$Data.'%')
+                        ->orderBy('id', 'DESC')
+                        ->get();
+
+        return $Categorias;
+    }
+
 }

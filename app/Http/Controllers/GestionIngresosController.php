@@ -12,9 +12,15 @@ class GestionIngresosController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        return $gestiones = Gestion_Ingresos::all();
+    public function index(Request $request)
+    {   
+        $Data = $request->get('DataSend');
+        if($Data != ''){
+            $gestiones = Gestion_Ingresos::GetFindData($Data);
+        }else{
+            $gestiones = Gestion_Ingresos::orderBy('id', 'DESC')->get();
+        }
+        return $gestiones;
     }
 
     /**
@@ -26,12 +32,12 @@ class GestionIngresosController extends Controller
     {
 		$Fecha         = date("Y-m-d  h:i:s");
         
-        $SubCategorias = new Gestion_Ingresos;
-        $SubCategorias->Nombre_Tipo_Entradas = strval($request->input('Nombre_Tipo_Entradas'));
-        $SubCategorias->Estado               = strval($request->input('Estado'));
-        $SubCategorias->Tipo_Ingreso         = strval($request->input('Tipo_Ingreso'));
-        $SubCategorias->created_at           = $Fecha;
-        $SubCategorias->save();
+        $gestion = new Gestion_Ingresos;
+        $gestion->Nombre_Tipo_Entradas = strval($request->input('Nombre_Tipo_Entradas'));
+        $gestion->Estado               = strval($request->input('Estado'));
+        $gestion->Tipo_Ingreso         = strval($request->input('Tipo_Ingreso'));
+        $gestion->created_at           = $Fecha;
+        $gestion->save();
 
         return;
     }
@@ -77,8 +83,17 @@ class GestionIngresosController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        //
+    {   
+        $Fecha         = date("Y-m-d  h:i:s");
+
+        $gestion = Gestion_Ingresos::find($id);
+        $gestion->Nombre_Tipo_Entradas = strval($request->input('Nombre_Tipo_Entradas'));
+        $gestion->Estado               = strval($request->input('Estado'));
+        $gestion->Tipo_Ingreso         = strval($request->input('Tipo_Ingreso'));
+        $gestion->updated_at           = $Fecha;
+        $gestion->save();
+
+        return;
     }
 
     /**
@@ -89,6 +104,9 @@ class GestionIngresosController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $gestion = Gestion_Ingresos::find($id);
+        $gestion->delete();
+
+        return;
     }
 }
