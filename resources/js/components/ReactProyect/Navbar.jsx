@@ -253,7 +253,7 @@ export default function PrimarySearchAppBar() {
                             </IconButton>
                             
                             <Typography className={classes.title} variant="h6" noWrap>
-                                Infinety Account
+                                Crud Pruebas
                             </Typography>
                             <div className={classes.search}>
                                 <div className={classes.searchIcon}>

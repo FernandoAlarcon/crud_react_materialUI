@@ -15,7 +15,6 @@ const Router = () => {
             <Route path="/SubCategoriasGastos"   component={SubCategoriasGastos} />
             <Route path="/ApuntesGastos"         component={ApuntesGastos} />
             <Route path="/ApuntesGestionIngreso" component={GestionIngresos} />
-
         </Switch>
     );
 }

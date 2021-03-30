@@ -20945,7 +20945,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
  */
 
 
-__webpack_require__(/*! ./components/Index.jsx */ "./resources/js/components/Index.jsx"); //require('./InfinetyFrontEnd/src/index.js');
+__webpack_require__(/*! ./components/Index.jsx */ "./resources/js/components/Index.jsx");
 
 /***/ }),
 
@@ -24782,7 +24782,7 @@ function PrimarySearchAppBar() {
           className: classes.title,
           variant: "h6",
           noWrap: true,
-          children: "Infinety Account"
+          children: "Crud Pruebas"
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           className: classes.search,
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {

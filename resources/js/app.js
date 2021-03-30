@@ -13,4 +13,3 @@ require('./bootstrap');
  */
 
 require('./components/Index.jsx');
-//require('./InfinetyFrontEnd/src/index.js');

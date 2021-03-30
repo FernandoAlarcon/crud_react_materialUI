@@ -233,7 +233,7 @@ function ModalCategorias(){
         setNomCat(event.target.value); 
     };
     const TipoSubCategoria = (event) => {
-        setCat(event.target.value); 
+        setCat(event.target.value);  
     };
 
     const NuevaTipoSubCategoria =  evt => {
